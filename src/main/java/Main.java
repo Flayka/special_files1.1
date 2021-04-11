@@ -5,29 +5,63 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
         String[] columnMapping = {"id", "firstName", "lastName", "country", "age"};
-        String fileName = "data.csv";
-        List<Employee> list = parseCSV(columnMapping, fileName);
+        String fileNameCsv = "data_csv.csv";
+        List<Employee> listCsv = parseCSV(columnMapping, fileNameCsv);
+        String fileNameXml = "data.xml";
 
-        String json = listToJson(list);
-        writeString(json);
+        //1st task
+        String json = listToJson(listCsv);
+        writeString(json, "data_json.json");
+        //2nd task
+        List<Employee> listXml = parseXML(fileNameXml);
+        writeString(listToJson(listXml), "data_json2.json");
     }
 
-    public static void writeString(String json) {
+    public static List<Employee> parseXML(String fileNameXml) throws ParserConfigurationException, IOException, SAXException {
+        List<Employee> list = new ArrayList<>();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new File(fileNameXml));
+        Node root = doc.getDocumentElement();
+        NodeList nodeList = root.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node elem = nodeList.item(i);
+            if (elem.getNodeType() != Node.TEXT_NODE) {
+                NodeList nodeList2 = elem.getChildNodes();
+                for (int j = 0; j < nodeList2.getLength(); j++) {
+                    list.add(new Employee(Long.parseLong(nodeList2.item(1).getTextContent()), nodeList2.item(3).getTextContent(), nodeList2.item(5).getTextContent(), nodeList2.item(7).getTextContent(), Integer.parseInt(nodeList2.item(9).getTextContent())));
+                }
+            }
+        }
+        return list;
+    }
+
+    public static void writeString(String json, String fileName) {
         try (FileWriter file = new
-                FileWriter("data_json.json")) {
+                FileWriter(fileName)) {
             file.write(json);
             file.flush();
         } catch (Exception e) {
-            System.out.println("Error! Data have not wrote to .json");
+            System.out.println("Error! Data have not wrote to .json file");
         }
     }
 
