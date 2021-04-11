@@ -5,7 +5,9 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,7 +18,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
@@ -25,13 +28,12 @@ public class Main {
         List<Employee> listCsv = parseCSV(columnMapping, fileNameCsv);
         String fileNameXml = "data.xml";
 
-        //1st task
-//        String json = listToJson(listCsv);
-//        writeString(json, "data_json.json");
-        //2nd task
+//1st task
+        String json = listToJson(listCsv);
+        writeString(json, "data_json.json");
+//2nd task
         List<Employee> listXml = parseXML(fileNameXml);
         writeString(listToJson(listXml), "data_json2.json");
-
     }
 
     public static List<Employee> parseXML(String fileNameXml) throws ParserConfigurationException, IOException, SAXException {
@@ -45,8 +47,11 @@ public class Main {
             Node elem = nodeList.item(i);
             if (elem.getNodeType() != Node.TEXT_NODE) {
                 NodeList nodeList2 = elem.getChildNodes();
-                list.add(new Employee(Long.parseLong(nodeList2.item(1).getTextContent()), nodeList2.item(3).getTextContent(), nodeList2.item(5).getTextContent(), nodeList2.item(7).getTextContent(), Integer.parseInt(nodeList2.item(9).getTextContent())));
-
+                list.add(new Employee(Long.parseLong(nodeList2.item(1).getTextContent()),
+                        nodeList2.item(3).getTextContent(),
+                        nodeList2.item(5).getTextContent(),
+                        nodeList2.item(7).getTextContent(),
+                        Integer.parseInt(nodeList2.item(9).getTextContent())));
             }
         }
         return list;
@@ -87,4 +92,3 @@ public class Main {
         return null;
     }
 }
-

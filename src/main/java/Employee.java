@@ -15,6 +15,4 @@ public class Employee {
         this.country = country;
         this.age = age;
     }
-
-
 }
